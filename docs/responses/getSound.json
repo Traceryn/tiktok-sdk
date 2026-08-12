@@ -1,0 +1,28 @@
+{
+  "by": "Traceryn",
+  "id": "7638379318552380000",
+  "title": "Video Title",
+  "author": "tiktok",
+  "original": false,
+  "duration": 0,
+  "playUrl": "",
+  "coverLarge": "",
+  "coverMedium": "",
+  "coverThumb": "",
+  "stats": {
+    "videoCount": 0
+  },
+  "raw": {
+    "extra": {
+      "fatal_item_ids": [],
+      "logid": "01234567890123456789",
+      "now": 1783244361000
+    },
+    "log_pb": {
+      "impr_id": "0123456789"
+    },
+    "statusCode": 10203,
+    "status_code": 0,
+    "status_msg": "ok"
+  }
+}

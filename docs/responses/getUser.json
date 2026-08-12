@@ -1,0 +1,160 @@
+{
+  "by": "Traceryn",
+  "raw": {
+    "user": {
+      "id": "6892455333022230000",
+      "shortId": "",
+      "uniqueId": "tiktok",
+      "nickname": "TikTok User",
+      "avatarLarger": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=14579&refresh_token=e8e7cdf7&x-expires=1783414800&x-signature=4gONrpRkLon9fTryua1apnDPJWc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "avatarMedium": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=2d6e5f8f&x-expires=1783414800&x-signature=s8eZxVIVkWRsJZExaD8AOVLGPvU%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "avatarThumb": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:100:100.jpeg?dr=14579&refresh_token=3497b69f&x-expires=1783414800&x-signature=oEkFfZf9J%2FMETJLDBzQyPXP8aMo%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "signature": "TikTok user bio description text",
+      "createTime": "2026-01-01T00:00:00.000Z",
+      "verified": false,
+      "secUid": "MS4wLjABAAAAabcdefghijklmnopqrstuvwxyz1234567890",
+      "ftc": false,
+      "relation": 0,
+      "openFavorite": false,
+      "bioLink": {
+        "link": "thebritishtheatreacademy.com",
+        "risk": 3
+      },
+      "commentSetting": 0,
+      "commerceUserInfo": {
+        "commerceUser": true,
+        "downLoadLink": {
+          "android": "",
+          "ios": ""
+        },
+        "category": "Education & Training",
+        "categoryButton": false
+      },
+      "duetSetting": 0,
+      "stitchSetting": 0,
+      "privateAccount": false,
+      "secret": false,
+      "isADVirtual": false,
+      "roomId": "123456789",
+      "uniqueIdModifyTime": 0,
+      "ttSeller": false,
+      "downloadSetting": 3,
+      "profileTab": {
+        "showMusicTab": false,
+        "showQuestionTab": true,
+        "showPlayListTab": true
+      },
+      "followingVisibility": 1,
+      "recommendReason": "",
+      "nowInvitationCardUrl": "",
+      "nickNameModifyTime": "TikTok User",
+      "isEmbedBanned": false,
+      "canExpPlaylist": true,
+      "profileEmbedPermission": 1,
+      "language": "en",
+      "eventList": [],
+      "suggestAccountBind": false,
+      "isOrganization": 0,
+      "UserStoryStatus": 0,
+      "shortDramaCreator": {}
+    },
+    "stats": {
+      "followerCount": 241300,
+      "followingCount": 23,
+      "heart": 22700000,
+      "heartCount": 22700000,
+      "videoCount": 1853,
+      "diggCount": 0,
+      "friendCount": 15
+    },
+    "statsV2": {
+      "followerCount": "241311",
+      "followingCount": "23",
+      "heart": "22704253",
+      "heartCount": "22704253",
+      "videoCount": "1853",
+      "diggCount": "0",
+      "friendCount": "15"
+    },
+    "itemList": []
+  },
+  "id": "6892455333022230000",
+  "uniqueId": "tiktok",
+  "nickname": "TikTok User",
+  "signature": "TikTok user bio description text",
+  "verified": false,
+  "secUid": "MS4wLjABAAAAabcdefghijklmnopqrstuvwxyz1234567890",
+  "avatar": {
+    "thumb": {
+      "url": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:100:100.jpeg?dr=14579&refresh_token=3497b69f&x-expires=1783414800&x-signature=oEkFfZf9J%2FMETJLDBzQyPXP8aMo%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "width": 100,
+      "height": 100,
+      "ratio": "1:1",
+      "quality": "100p",
+      "format": "jpeg",
+      "size": 0
+    },
+    "medium": {
+      "url": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=2d6e5f8f&x-expires=1783414800&x-signature=s8eZxVIVkWRsJZExaD8AOVLGPvU%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "width": 720,
+      "height": 720,
+      "ratio": "1:1",
+      "quality": "720p",
+      "format": "jpeg",
+      "size": 0
+    },
+    "larger": {
+      "url": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/db5ea157c308abf341698daee08d8732~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=14579&refresh_token=e8e7cdf7&x-expires=1783414800&x-signature=4gONrpRkLon9fTryua1apnDPJWc%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my",
+      "width": 1080,
+      "height": 1080,
+      "ratio": "1:1",
+      "quality": "1080p",
+      "format": "jpeg",
+      "size": 0
+    }
+  },
+  "stats": {
+    "followerCount": 241300,
+    "followingCount": 23,
+    "heartCount": 22700000,
+    "videoCount": 1853,
+    "diggCount": 0,
+    "friendCount": 15
+  },
+  "createTime": "2026-01-01T00:00:00.000Z",
+  "createTimestamp": 1767225600,
+  "language": "en",
+  "region": "US",
+  "bioLink": "thebritishtheatreacademy.com",
+  "privateAccount": false,
+  "secret": false,
+  "ftc": false,
+  "isOrganization": false,
+  "ttSeller": false,
+  "openFavorite": false,
+  "isADVirtual": false,
+  "commentSetting": 0,
+  "duetSetting": 0,
+  "stitchSetting": 0,
+  "downloadSetting": 3,
+  "followingVisibility": 1,
+  "profileEmbedPermission": 1,
+  "commerceUserInfo": {
+    "commerceUser": true,
+    "category": "Education & Training"
+  },
+  "httpHeaders": {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    "Accept-Encoding": "gzip, deflate, br",
+    "Sec-Ch-Ua": "\"Chromium\";v=\"135\", \"Not)A;Brand\";v=\"99\"",
+    "Sec-Ch-Ua-Mobile": "?0",
+    "Sec-Ch-Ua-Platform": "\"Windows\"",
+    "Sec-Fetch-Site": "none",
+    "Sec-Fetch-Mode": "navigate",
+    "Sec-Fetch-Dest": "document",
+    "Referer": "https://www.tiktok.com_=/@thebritishtheatreacademy"
+  },
+  "cookies": "ttwid=1%7CMmUthHa9pG1D9tJEuD9EqOWS05E5eGi8-ZhfWh3YeNE%7C1783244349%7C813039de62406ae4567333eefebda650cc48dbb87cc177f6d97fcff761156aa7; tt_csrf_token=WZmraSt8-0KUzVR1qi5o2e-Cb8eL_47hnIMA; tt_chain_token=HHw9tvLJlZM0taHlWaQlyA==; msToken=pRit6qZVIs60o10Mk_3EAXyXJrK8eCXG-gROqcc4sLefGPdzq7Q2imEae_mon5Y3BTISZ_zf6G3UI1G4r1VG6D5Prpi_mslB1H6r_lz25JGLEWm56GKT5GED"
+}

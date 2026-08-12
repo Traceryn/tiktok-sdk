@@ -1,0 +1,57 @@
+{
+  "by": "Traceryn",
+  "id": "229207",
+  "title": "Video Title",
+  "desc": "Video description text for demonstration purposes",
+  "stats": {
+    "videoCount": 8985490255,
+    "viewCount": 123053497552480
+  },
+  "raw": {
+    "challengeInfo": {
+      "challenge": {
+        "coverLarger": "",
+        "coverMedium": "",
+        "coverThumb": "",
+        "desc": "Video description text for demonstration purposes",
+        "id": "229207",
+        "isCommerce": false,
+        "profileLarger": "",
+        "profileMedium": "",
+        "profileThumb": "",
+        "stats": {
+          "videoCount": 0,
+          "viewCount": 123053500000000
+        },
+        "title": "Video Title"
+      },
+      "challengeAnnouncement": {
+        "body": "",
+        "title": "Video Title"
+      },
+      "stats": {
+        "videoCount": 0,
+        "viewCount": 123053500000000
+      },
+      "statsV2": {
+        "videoCount": "8985490255",
+        "viewCount": "123053497552480"
+      }
+    },
+    "extra": {
+      "fatal_item_ids": [],
+      "logid": "01234567890123456789",
+      "now": 1783244355000
+    },
+    "log_pb": {
+      "impr_id": "0123456789"
+    },
+    "shareMeta": {
+      "desc": "Video description text for demonstration purposes",
+      "title": "Video Title"
+    },
+    "statusCode": 0,
+    "status_code": 0,
+    "status_msg": "ok"
+  }
+}

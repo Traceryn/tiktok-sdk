@@ -1,0 +1,49 @@
+{
+  "by": "Traceryn",
+  "id": "7516638364301260000",
+  "name": "Video Title",
+  "videoCount": 24,
+  "coverUrl": "https://p16-common-sign.tiktokcdn.com_=/tos-useast8-p-0068-tx2/oMr6rAA6QCIh5zBgE2FEAqDfIoAjTeAQIifXqO~tplv-tiktokx-origin.image?dr=14575&x-expires=1783263600&x-signature=9XhGSfMA%2B%2BLtP%2Fk6mEkH0QvR7W8%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=my3",
+  "authorName": "tiktok",
+  "raw": {
+    "extra": {
+      "fatal_item_ids": [],
+      "logid": "01234567890123456789",
+      "now": 1783244371000
+    },
+    "log_pb": {
+      "impr_id": "0123456789"
+    },
+    "mixInfo": {
+      "cover": "https://p16-common-sign.tiktokcdn.com_=/tos-useast8-p-0068-tx2/oMr6rAA6QCIh5zBgE2FEAqDfIoAjTeAQIifXqO~tplv-tiktokx-origin.image?dr=14575&x-expires=1783263600&x-signature=9XhGSfMA%2B%2BLtP%2Fk6mEkH0QvR7W8%3D&t=4d5b0474&ps=13740610&shp=81f88b70&shcp=43f4a2f9&idc=my3",
+      "creator": {
+        "avatarLarger": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/ba67b11de451691939223e9d978e613a~tplv-tiktokx-cropcenter:1080:1080.jpeg?dr=14579&refresh_token=929e3b82&x-expires=1783414800&x-signature=25tN45WoBiEJbsmsxsdLxzSPMpA%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my2",
+        "avatarMedium": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/ba67b11de451691939223e9d978e613a~tplv-tiktokx-cropcenter:720:720.jpeg?dr=14579&refresh_token=1ca1d346&x-expires=1783414800&x-signature=eY84%2Bm%2BdAUC6O5xbghoUPZVHNaY%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my2",
+        "avatarThumb": "https://p16-common-sign.tiktokcdn.com_=/tos-maliva-avt-0068/ba67b11de451691939223e9d978e613a~tplv-tiktokx-cropcenter:100:100.jpeg?dr=14579&refresh_token=bc5f03c4&x-expires=1783414800&x-signature=QJzl9ksxjjKsRN%2BShEaOIV43%2FJk%3D&t=4d5b0474&ps=13740610&shp=a5d48078&shcp=81f88b70&idc=my2",
+        "ftc": false,
+        "id": "107955",
+        "isADVirtual": false,
+        "nickname": "TikTok User",
+        "openFavorite": false,
+        "privateAccount": false,
+        "relation": 0,
+        "secUid": "MS4wLjABAAAAabcdefghijklmnopqrstuvwxyz1234567890",
+        "secret": false,
+        "shortDramaCreator": {},
+        "signature": "TikTok user bio description text",
+        "uniqueId": "tiktok",
+        "verified": false
+      },
+      "id": "7516638364301260000",
+      "name": "Video Title",
+      "videoCount": 24
+    },
+    "shareMeta": {
+      "desc": "Video description text for demonstration purposes",
+      "title": "Video Title"
+    },
+    "statusCode": 0,
+    "status_code": 0,
+    "status_msg": "ok"
+  }
+}
