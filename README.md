@@ -233,8 +233,7 @@ npm run lint
 If you're only testing one area, keep the focus tight and run the smallest check that covers your change.
 
 ## Sponsor
-If you'd like to financially support this project, you can do so by supporting the current maintainer [HERE](https://paystack.shop/pay/corex24)
-
+If you'd like to financially support this project, you can do so by supporting the current maintainer [COMING SOON](https://corex.name.ng)
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute, and [SECURITY.md](SECURITY.md) for how to report security issues.
