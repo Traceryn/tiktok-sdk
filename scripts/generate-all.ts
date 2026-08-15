@@ -23,17 +23,22 @@ async function save(label: string, fn: () => Promise<any>) {
 }
 
 async function main() {
-  const useSession = process.argv.includes('--session');
+  const args = process.argv.slice(2);
+  const useSession = args.includes('--session');
+  const proxyFlag = args.find((a) => a.startsWith('--proxy='));
+  const proxy = proxyFlag?.split('=')[1];
   let session: PlaywrightSession | undefined;
 
   if (useSession) {
     console.log('Launching Playwright browser (headless)...');
-    session = new PlaywrightSession({ headless: true });
+    session = new PlaywrightSession({ headless: true, proxy });
     await session.init();
     console.log('Browser ready.');
   }
 
-  const client = new TikTokClient({ ...(session ? { session } : {}), maxRetries: 1, timeout: 15000 });
+  const client = new TikTokClient(
+    { ...(session ? { session } : {}), maxRetries: 1, timeout: 15000, ...(proxy ? { proxy: [proxy] } : {}) },
+  );
 
   const results: Record<string, any> = {};
 

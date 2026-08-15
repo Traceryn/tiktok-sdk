@@ -191,13 +191,17 @@ export class PlaywrightSession {
       const overrides = { ...defaultNavOverrides, ...this.options.navigatorOverrides };
       await page.addInitScript({ content: buildStealthScript(overrides) });
 
-      await page.goto('https://www.tiktok.com/foryou', { waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {});
       let msToken = '', csrfToken = '';
-      try {
-        const cookies = await context.cookies();
-        msToken = cookies.find((c: any) => c.name === 'msToken')?.value ?? '';
-        csrfToken = cookies.find((c: any) => c.name === 'csrf_token')?.value ?? '';
-      } catch {}
+      for (let attempt = 0; attempt < 3; attempt++) {
+        await page.goto('https://www.tiktok.com/foryou', { waitUntil: 'domcontentloaded', timeout: 20000 }).catch(() => {});
+        if (attempt < 2) await page.waitForTimeout(3000);
+        try {
+          const cookies = await context.cookies();
+          msToken = cookies.find((c: any) => c.name === 'msToken')?.value ?? '';
+          csrfToken = cookies.find((c: any) => c.name === 'csrf_token')?.value ?? '';
+        } catch {}
+        if (msToken) break;
+      }
 
       const deviceId = String(Math.floor(Math.random() * 9e18) + 1e18);
       const params: Record<string, string> = {

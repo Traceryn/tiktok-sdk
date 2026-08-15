@@ -3,10 +3,6 @@
 # ***Traceryn/Tiktok-sdk***
 A lightweight TikTok SDK for Node.js that makes it easier to fetch videos, users, comments, playlists, hashtags, and other TikTok data in a clean, structured way.
 
-> [!WARNING]
-> Work in progress: this project is not finished yet and may change or break without notice. Please do not rely on it for production or active use.
-
-
 ## Disclaimer
 
 > [!CAUTION]
@@ -206,8 +202,27 @@ const client = new TikTokClient({
 | `rateLimit` | Any whole number, like `1`, `3`, or `10` |
 | `concurrency` | Any whole number, like `1`, `2`, or `4` |
 | `cacheTTL` | Any number in milliseconds, like `30000`, `60000`, or `300000` |
+| `proxy` | A single proxy URL or array, like `"http://user:pass@host:port"` |
+| `proxyRotation` | `"round-robin"`, `"random"`, or `"lowest-failures"` |
 
 You can also pass `session` if you want the Playwright path, or `proxy` / `proxyRotation` if you want to manage proxies a bit more directly.
+
+### IP throttling & proxies
+
+TikTok rate-limits endpoints based on IP. If a request returns an empty response or gets throttled after heavy use, the fix is to switch IP via a proxy.
+
+```sh
+node docs/examples/searchUsers.cjs --session --proxy=http://user:pass@host:port
+```
+
+You can also add proxies at runtime:
+
+```js
+client.addProxies(['http://user:pass@host:port', 'http://proxy2:port']);
+console.log(client.getProxyStats());
+```
+
+Free public proxies are often blocked by TikTok — residential or paid proxies are the most reliable for high-volume use. The SDK auto-rotates to the next healthy proxy when one fails.
 
 > [!NOTE]
 > You can also check [HERE](docs/responses) to see example response data for the main methods.
@@ -233,7 +248,8 @@ npm run lint
 If you're only testing one area, keep the focus tight and run the smallest check that covers your change.
 
 ## Sponsor
-If you'd like to financially support this project, you can do so by supporting the current maintainer [COMING SOON](https://corex.name.ng)
+If you'd like to financially support this project, sponsorship by the current maintainer is coming soon.
+
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to contribute, and [SECURITY.md](SECURITY.md) for how to report security issues.
