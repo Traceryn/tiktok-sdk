@@ -1,4 +1,4 @@
-<img src='../media/Traceryn.png' alt='Traceryn Logo' width='320'>
+<img src='https://raw.githubusercontent.com/Traceryn/tiktok-sdk/master/media/Traceryn.png' alt='Traceryn Logo' width='320'>
 
 # ***Traceryn/Tiktok-sdk***
 A lightweight TikTok SDK for Node.js that makes it easier to fetch videos, users, comments, playlists, hashtags, and other TikTok data in a clean, structured way.
