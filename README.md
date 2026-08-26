@@ -58,11 +58,11 @@ yarn add git+https://github.com/traceryn/tiktok-sdk.git
 
 ```sh
 npm install playwright
-```
-
-```sh
+# or
 yarn add playwright
 ```
+
+> **Note:** Only needed for `--session` (browser-backed) requests. No separate Chromium install required.
 
 ## Then import your code using:
 
