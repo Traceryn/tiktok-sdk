@@ -68,7 +68,8 @@ export class TikTokWafError extends TikTokFetchError {
   constructor(message?: string, proxy?: string) {
     const msg = message ?? (
       'TikTok is blocking the request (WAF). ' +
-      'Try using a PlaywrightSession — npm install playwright'
+      'Try a PlaywrightSession — npm install playwright — ' +
+      'or use a residential proxy via --proxy=http://IP:PORT'
     );
     super(msg, 200, proxy);
     this.name = 'TikTokWafError';
