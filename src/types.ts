@@ -35,6 +35,7 @@ export interface VideoData {
   PlayAddrStruct: PlayAddrStruct;
   zoomCover: Record<string, string>;
   imagePost?: ImagePost;
+  bitrateInfo?: BitrateEntry[];
 }
 
 export interface PlayAddrStruct {
@@ -295,12 +296,33 @@ export interface ItemStruct {
   collectCount?: number;
   challenges?: ChallengeData[];
   imagePost?: ImagePost;
+  authorStats?: {
+    followerCount?: number;
+    followingCount?: number;
+    heartCount?: number;
+    videoCount?: number;
+    diggCount?: number;
+    friendCount?: number;
+  };
 }
 
 export interface Session {
   request<T>(path: string, params?: Record<string, string>): Promise<T>;
   readonly isReady: boolean;
   render?: (url: string) => Promise<string>;
+  scrapeUserPage?: (username: string) => Promise<{
+    uniqueId: string;
+    nickname: string;
+    signature: string;
+    avatar: string;
+    followers: number;
+    following: number;
+    likes: number;
+    verified: boolean;
+    secUid: string;
+    userId: string;
+    raw: Record<string, unknown>;
+  }>;
 }
 
 export interface ProxiflyOptions {

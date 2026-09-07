@@ -1,7 +1,7 @@
 import { ofetch } from 'ofetch';
-import type { TikTokUser, AvatarInfo } from '../types.js';
+import type { TikTokUser, AvatarInfo, Session } from '../types.js';
 import { CookieJar, fetchTikTokCookies } from '../utils/CookieJar.js';
-import { HEADERS, DESKTOP_UA } from '../utils/constants.js';
+import { HEADERS } from '../utils/constants.js';
 import { extractUserPageData } from './ParserEngine.js';
 import { buildUserUrl } from './UrlExtractor.js';
 import { TikTokFetchError, TikTokParseError } from '../utils/errors.js';
@@ -32,21 +32,74 @@ function buildAvatarInfo(url: string): AvatarInfo {
   };
 }
 
-export async function scrapeUser(username: string, proxy: string): Promise<TikTokUser> {
+function buildUserFromDom(dom: Record<string, unknown>, url: string): TikTokUser {
+  return {
+    by: 'Traceryn',
+    raw: dom.raw as Record<string, unknown> | undefined,
+    id: String(dom.userId ?? ''),
+    uniqueId: String(dom.uniqueId ?? ''),
+    nickname: String(dom.nickname ?? ''),
+    signature: String(dom.signature ?? ''),
+    verified: Boolean(dom.verified),
+    secUid: String(dom.secUid ?? ''),
+    avatar: {
+      thumb: buildAvatarInfo(String(dom.avatar ?? '')),
+      medium: buildAvatarInfo(String(dom.avatar ?? '')),
+      larger: buildAvatarInfo(String(dom.avatar ?? '')),
+    },
+    stats: {
+      followerCount: Number(dom.followers ?? 0),
+      followingCount: Number(dom.following ?? 0),
+      heartCount: Number(dom.likes ?? 0),
+      videoCount: 0,
+      diggCount: 0,
+      friendCount: 0,
+    },
+    createTime: '',
+    createTimestamp: 0,
+    language: '',
+    region: '',
+    privateAccount: false,
+    secret: false,
+    ftc: false,
+    isOrganization: false,
+    ttSeller: false,
+    openFavorite: false,
+    isADVirtual: false,
+    commentSetting: 0,
+    duetSetting: 0,
+    stitchSetting: 0,
+    downloadSetting: 0,
+    followingVisibility: 0,
+    profileEmbedPermission: 0,
+    httpHeaders: { ...HEADERS.mobile, Referer: url },
+    cookies: '',
+  };
+}
+
+export async function scrapeUser(username: string, proxy: string, session?: Session): Promise<TikTokUser> {
   const name = username.replace('@', '');
   const url = buildUserUrl(name);
+
+  if (session?.scrapeUserPage) {
+    try {
+      const dom = await session.scrapeUserPage(name);
+      if (dom) return buildUserFromDom(dom, url);
+    } catch {
+      // fall through to static html
+    }
+  }
 
   const jar = new CookieJar();
   let html: string;
   try {
     html = await ofetch<string>(url, {
-      headers: HEADERS.desktop,
+      headers: HEADERS.mobile,
       ...({ proxy } as any),
       parseResponse: (txt: string) => txt,
-      onResponse(_ctx) {
-        const resp = _ctx.response;
-        if (resp?.headers) {
-          jar.setFromHeaders(resp.headers as unknown as Headers);
+      onResponse({ response }) {
+        if (response?.headers) {
+          jar.setFromHeaders(response.headers as unknown as Headers);
         }
       },
     });
@@ -67,9 +120,8 @@ export async function scrapeUser(username: string, proxy: string): Promise<TikTo
           headers: { ...HEADERS.desktop, Cookie: cookieStr },
           ...({ proxy } as any),
           parseResponse: (txt: string) => txt,
-          onResponse(_ctx) {
-            const resp = _ctx.response;
-            if (resp?.headers) jar.setFromHeaders(resp.headers as unknown as Headers);
+          onResponse({ response }) {
+            if (response?.headers) jar.setFromHeaders(response.headers as unknown as Headers);
           },
         });
         pageData = extractUserPageData(html);
@@ -85,7 +137,7 @@ export async function scrapeUser(username: string, proxy: string): Promise<TikTo
   const createTimestamp = Number(u.createTime ?? 0);
 
   const httpHeaders: Record<string, string> = {
-    ...HEADERS.desktop,
+    ...HEADERS.mobile,
     Referer: url,
   };
 

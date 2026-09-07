@@ -33,7 +33,7 @@ npm install @traceryn/tiktok-sdk
 npm install playwright
 ```
 
-Playwright is only needed for `--session` (browser-backed) usage. No separate Chromium install is required.
+Playwright is only needed for `--session` (browser-backed) usage. After installing Playwright, you must also download a browser binary with `npx playwright install chromium`. The `playwright` package does not ship a browser by default.
 
 ## Main methods
 

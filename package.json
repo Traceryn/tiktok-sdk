@@ -1,7 +1,7 @@
 {
   "name": "@traceryn/tiktok-sdk",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Structured TikTok data for modern applications.",
   "license": "MIT",
   "author": "Corex Anthony",

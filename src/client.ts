@@ -1,6 +1,7 @@
 import type { TikTokVideo, TikTokUser, TikTokUserSearchResults, TikTokCommentList, ClientOptions, Session, ImageInfo, HashtagInfo, SoundInfo, SoundItemList, TrendingVideos, LikedVideos, PlaylistInfo, PlaylistItemList } from './types.js';
 import { DESKTOP_UA, HEADERS } from './utils/constants.js';
 import { formatISODate, formatUploadDate, formatDuration, parseCookieString } from './utils/helpers.js';
+import { bufferFetch } from './utils/HttpClient.js';
 import { scrapeVideo } from './scrapers/VideoScraper.js';
 import { scrapeUser } from './scrapers/UserScraper.js';
 import { searchUsers as searchUsersScraper } from './scrapers/SearchScraper.js';
@@ -165,7 +166,7 @@ export class TikTokClient {
           const subtitles = extractSubtitles(item);
           const timestamp = Number(item.createTime ?? 0);
 
-          const as = (item as any).authorStats as Record<string, number> | undefined;
+          const as = item.authorStats;
 
           const primaryFormat = formats.find(
             (f) => f.width === res.width && f.height === res.height,
@@ -318,7 +319,7 @@ export class TikTokClient {
         try {
           const proxyUrl = await this.awaitProxy();
           const startTime = Date.now();
-          const result = await scrapeUser(username, proxyUrl);
+          const result = await scrapeUser(username, proxyUrl, this.options.session);
           this.proxyManager.reportSuccess(proxyUrl, Date.now() - startTime);
           return result;
         } catch (error: unknown) {
@@ -357,10 +358,9 @@ export class TikTokClient {
     const downloadUrl = itemStruct.video?.playAddr ?? itemStruct.video?.downloadAddr;
     if (!downloadUrl) throw new TikTokError('No video URL found');
 
-    const { ofetch } = await import('ofetch');
     const cookieStr = parseCookieString(cookies);
 
-    return ofetch(downloadUrl, {
+    return bufferFetch(downloadUrl, {
       headers: {
         'User-Agent': DESKTOP_UA,
         Referer: 'https://www.tiktok.com/',
@@ -368,10 +368,8 @@ export class TikTokClient {
         Accept: '*/*',
       },
       proxy: proxyUrl,
-      responseType: 'arrayBuffer',
-      retry: 0,
       timeout: 60000,
-    } as any) as Promise<ArrayBuffer>;
+    });
   }
 
   getProxyStats() {
@@ -419,14 +417,14 @@ export class TikTokClient {
   async getUserLikedVideos(username: string, cursor?: number, count = 30): Promise<LikedVideos> {
     await this.rateLimiter.acquire();
     const proxyUrl = await this.awaitProxy();
-    const user = await scrapeUser(username, proxyUrl);
+    const user = await scrapeUser(username, proxyUrl, this.options.session);
     return fetchUserLikedVideos(user.secUid, cursor ?? 0, count, proxyUrl, this.options.session);
   }
 
   async getUserPlaylists(username: string, cursor?: number, count = 30): Promise<{ playlists: PlaylistInfo[]; cursor: number; hasMore: boolean }> {
     await this.rateLimiter.acquire();
     const proxyUrl = await this.awaitProxy();
-    const user = await scrapeUser(username, proxyUrl);
+    const user = await scrapeUser(username, proxyUrl, this.options.session);
     return fetchUserPlaylists(user.secUid, cursor ?? 0, count, proxyUrl, this.options.session);
   }
 

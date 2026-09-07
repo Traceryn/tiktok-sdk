@@ -1,3 +1,11 @@
+import type {
+  PlaywrightBrowser,
+  PlaywrightContext,
+  PlaywrightPage,
+  PlaywrightCookie,
+  PlaywrightResponse,
+} from './types/playwright.js';
+
 export interface NavigatorOverrides {
   platform?: string;
   vendor?: string;
@@ -120,9 +128,9 @@ export interface PlaywrightSessionOptions {
 }
 
 interface SessionState {
-  page: any;
-  browser: any;
-  context: any;
+  page: PlaywrightPage;
+  browser: PlaywrightBrowser;
+  context: PlaywrightContext;
   msToken: string;
   csrfToken: string;
   params: Record<string, string>;
@@ -148,8 +156,8 @@ const defaultNavOverrides: NavigatorOverrides = {
 
 export class PlaywrightSession {
   private state: SessionState | null = null;
-  private _browser: any = null;
-  private _playwrightMod: any = null;
+  private _browser: PlaywrightBrowser | null = null;
+  private _playwrightMod: unknown = null;
   private options: PlaywrightSessionOptions;
 
   constructor(options: PlaywrightSessionOptions = {}) {
@@ -172,7 +180,7 @@ export class PlaywrightSession {
     return this._browser !== null;
   }
 
-  private async ensurePage(): Promise<{ page: any; context: any }> {
+  private async ensurePage(): Promise<{ page: PlaywrightPage; context: PlaywrightContext }> {
     // browser is gone, stop here
     if (!this._browser) throw new Error('Browser not launched. Call init() first.');
 
@@ -197,8 +205,8 @@ export class PlaywrightSession {
         if (attempt < 2) await page.waitForTimeout(3000);
         try {
           const cookies = await context.cookies();
-          msToken = cookies.find((c: any) => c.name === 'msToken')?.value ?? '';
-          csrfToken = cookies.find((c: any) => c.name === 'csrf_token')?.value ?? '';
+          msToken = cookies.find((c: PlaywrightCookie) => c.name === 'msToken')?.value ?? '';
+          csrfToken = cookies.find((c: PlaywrightCookie) => c.name === 'csrf_token')?.value ?? '';
         } catch {}
         if (msToken) break;
       }
@@ -223,10 +231,10 @@ export class PlaywrightSession {
     return { page: this.state.page, context: this.state.context };
   }
 
-  async init(videoUrl?: string): Promise<void> {
-    let playwright: any;
+  async init(_videoUrl?: string): Promise<void> {
+    let playwright: { chromium: { launch: (options: { headless?: boolean; proxy?: { server: string }; args?: string[] }) => Promise<PlaywrightBrowser> } };
     try {
-      playwright = await import('playwright');
+      playwright = await import('playwright') as unknown as typeof playwright;
     } catch {
       throw new Error(
         'Playwright is required for PlaywrightSession. Install it with: npm install playwright',
@@ -275,11 +283,11 @@ export class PlaywrightSession {
    * Wait for window.byted_acrawler to show up.
    * TikTok can be slow here, so give it a few shots.
    */
-  private async ensureAcrawler(page: any): Promise<void> {
+  private async ensureAcrawler(page: PlaywrightPage): Promise<void> {
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
         await page.waitForFunction(
-          () => typeof (window as any).byted_acrawler?.frontierSign === 'function',
+          () => typeof (window as unknown as { byted_acrawler?: { frontierSign?: unknown } }).byted_acrawler?.frontierSign === 'function',
           { timeout: 10000, polling: 500 },
         );
         return;
@@ -296,23 +304,22 @@ export class PlaywrightSession {
   async sign(url: string): Promise<string> {
     const { page } = await this.ensurePage();
 
-    // try the easy path first, since acrawler might already be ready
-    let result: any;
+    let result: Record<string, unknown> | null;
     try {
       result = await page.evaluate((u: string) => {
-        const w = window as any;
+        const w = window as unknown as { byted_acrawler?: { frontierSign?: (u: string) => Record<string, unknown> } };
         return w.byted_acrawler?.frontierSign?.(u) ?? null;
-      }, url);
+      }, url) as Record<string, unknown> | null;
     } catch {
       result = null;
     }
 
-    // if that flops, wait for acrawler and try again
     if (!result) {
       await this.ensureAcrawler(page);
       result = await page.evaluate((u: string) => {
-        return (window as any).byted_acrawler.frontierSign(u);
-      }, url);
+        const w = window as unknown as { byted_acrawler: { frontierSign: (u: string) => Record<string, unknown> } };
+        return w.byted_acrawler.frontierSign(u);
+      }, url) as Record<string, unknown>;
     }
 
     if (!result) throw new Error('Failed to generate X-Bogus signature');
@@ -349,8 +356,8 @@ export class PlaywrightSession {
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return await res.json();
-      } catch (err: any) {
-        return { __fetchError: err.message };
+      } catch (err) {
+        return { __fetchError: (err as Error).message };
       }
     }, signedUrl);
 
@@ -376,6 +383,162 @@ export class PlaywrightSession {
     }
   }
 
+  /**
+   * Scrape a user profile page by letting the React app render in a real browser,
+   * then reading the live DOM. Falls back to intercepting the /api/user/detail
+   * network response for richer data (secUid, numeric stats, etc).
+   *
+   * This is the recommended path when static HTML parsing fails because TikTok
+   * ships an empty SSR shell and loads data via client-side fetches.
+   */
+  async scrapeUserPage(username: string): Promise<{
+    uniqueId: string;
+    nickname: string;
+    signature: string;
+    avatar: string;
+    followers: number;
+    following: number;
+    likes: number;
+    verified: boolean;
+    secUid: string;
+    userId: string;
+    raw: Record<string, unknown>;
+  }> {
+    const clean = username.replace(/^@/, '').trim();
+    const url = `https://www.tiktok.com/@${clean}`;
+
+    if (!this._browser) throw new Error('Browser not launched. Call init() first.');
+    // First, ensure we have a warm session with cookies + byted_acrawler.
+    // Without this, TikTok returns a blank page that never hydrates.
+    await this.ensurePage();
+
+    // Use a fresh context per scrape to avoid TikTok rate-limiting from accumulated requests
+    const context = await this._browser.newContext({
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36',
+      locale: 'en-US', timezoneId: 'America/New_York',
+      viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1,
+      hasTouch: false, javaScriptEnabled: true, bypassCSP: true,
+    });
+    const page = await context.newPage();
+    await page.addInitScript({ content: buildStealthScript(defaultNavOverrides) });
+
+    let apiUserDetail: unknown = null;
+    const onResponse = async (res: PlaywrightResponse) => {
+      const u = res.url();
+      if (u.includes('/api/user/detail/')) {
+        try { apiUserDetail = await res.json(); } catch {}
+      }
+    };
+    page.on('response', onResponse);
+
+    try {
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 90000 });
+      await page.waitForTimeout(15000);
+
+      const dom = await page.evaluate(() => {
+        const q = (sel: string) => document.querySelector(sel);
+        const text = (sel: string) => q(sel)?.textContent?.trim() || '';
+        const parseCount = (s: string): number => {
+          if (!s) return 0;
+          const cleaned = s.replace(/[,\s]/g, '');
+          const n = parseFloat(cleaned);
+          if (isNaN(n)) return 0;
+          if (cleaned.includes('K')) return Math.round(n * 1_000);
+          if (cleaned.includes('M')) return Math.round(n * 1_000_000);
+          if (cleaned.includes('B')) return Math.round(n * 1_000_000_000);
+          return n;
+        };
+        const subEl = q('[data-e2e="user-subtitle"]') as HTMLAnchorElement | null;
+        const href = subEl?.getAttribute('href') || '';
+        const uniqueId = href.replace(/^.*\/@?/, '').replace(/[/?].*$/, '') || text('[data-e2e="user-subtitle"]');
+        const avatarEl = q('[data-e2e="user-avatar"] img') as HTMLImageElement | null;
+        const avatarStyle = q('[data-e2e="user-avatar"]') as HTMLElement | null;
+        const bgMatch = avatarStyle?.style?.backgroundImage?.match(/url\(["']?(.*?)["']?\)/);
+        return {
+          uniqueId,
+          nickname: text('[data-e2e="user-title"]'),
+          signature: text('[data-e2e="user-bio"]'),
+          avatar: avatarEl?.src || bgMatch?.[1] || '',
+          followers: parseCount(text('[data-e2e="followers-count"]')),
+          following: parseCount(text('[data-e2e="following-count"]')),
+          likes: parseCount(text('[data-e2e="likes-count"]')),
+          verified: !!q('[data-e2e="user-title"] [class*="VerifiedBadge"], [data-e2e="user-title"] svg'),
+        };
+      });
+
+      // Pull richer data from the intercepted API if we got it
+      let secUid = '';
+      let userId = '';
+      let verified = dom.verified;
+      let followers = dom.followers;
+      let following = dom.following;
+      let likes = dom.likes;
+      let avatar = dom.avatar;
+      let nickname = dom.nickname;
+      let signature = dom.signature;
+
+      const ud = apiUserDetail as {
+        userInfo?: {
+          user?: {
+            id?: string | number;
+            secUid?: string;
+            uniqueId?: string;
+            nickname?: string;
+            signature?: string;
+            verified?: boolean;
+            avatarLarger?: string;
+            avatarMedium?: string;
+            avatarThumb?: string;
+            followerCount?: number;
+            followingCount?: number;
+            heartCount?: number;
+            videoCount?: number;
+          };
+          stats?: {
+            followerCount?: number;
+            followingCount?: number;
+            heartCount?: number;
+            videoCount?: number;
+          };
+          shares?: unknown;
+        };
+        shareMeta?: unknown;
+        statusCode?: number;
+      } | null;
+
+      if (ud?.userInfo?.user) {
+        const u = ud.userInfo.user;
+        const s = ud.userInfo.stats;
+        if (u.id) userId = String(u.id);
+        if (u.secUid) secUid = u.secUid;
+        if (typeof u.verified === 'boolean') verified = u.verified;
+        if (u.avatarLarger) avatar = u.avatarLarger;
+        if (u.nickname) nickname = u.nickname;
+        if (typeof u.signature === 'string') signature = u.signature;
+        if (typeof s?.followerCount === 'number') followers = s.followerCount;
+        if (typeof s?.followingCount === 'number') following = s.followingCount;
+        if (typeof s?.heartCount === 'number') likes = s.heartCount;
+      }
+
+      return {
+        uniqueId: dom.uniqueId || clean,
+        nickname,
+        signature,
+        avatar,
+        followers,
+        following,
+        likes,
+        verified,
+        secUid,
+        userId,
+        raw: { dom, api: apiUserDetail as Record<string, unknown> | null },
+      };
+    } finally {
+      page.removeListener('response', onResponse);
+      await context.close().catch(() => {});
+    }
+  }
+
   async close(): Promise<void> {
     this.state = null;
     if (this._browser) {
@@ -384,7 +547,7 @@ export class PlaywrightSession {
     }
   }
 
-  get browser(): any {
+  get browser(): PlaywrightBrowser | null {
     return this._browser;
   }
 }

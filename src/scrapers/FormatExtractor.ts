@@ -32,7 +32,7 @@ export function extractFormats(item: ItemStruct): FormatEntry[] {
     });
   }
 
-  const bitrateInfo = (item.video as any)?.bitrateInfo as BitrateEntry[] | undefined;
+  const bitrateInfo = item.video?.bitrateInfo as BitrateEntry[] | undefined;
   if (!bitrateInfo?.length) return formats;
 
   const seen = new Set<string>();
@@ -88,7 +88,7 @@ export function extractSubtitles(item: ItemStruct) {
 }
 
 export function findBestQuality(item: ItemStruct) {
-  const bitrateInfo = (item.video as any)?.bitrateInfo as BitrateEntry[] | undefined;
+  const bitrateInfo = item.video?.bitrateInfo as BitrateEntry[] | undefined;
   if (!bitrateInfo?.length) return null;
 
   let best: BitrateEntry | null = null;

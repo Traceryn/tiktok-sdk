@@ -1,9 +1,9 @@
-import { ofetch } from 'ofetch';
 import type { TikTokUserSearchResults, SearchUserResult, AvatarInfo, Session } from '../types.js';
 import { HEADERS } from '../utils/constants.js';
 import { CookieJar } from '../utils/CookieJar.js';
 import { signUrl } from '../core/Signer.js';
 import { TikTokFetchError } from '../utils/errors.js';
+import { jsonFetch, textFetch } from '../utils/HttpClient.js';
 
 const SEARCH_USER_URI = 'https://www.tiktok.com/api/search/user/full/';
 const USER_PAGE = 'https://www.tiktok.com/@tiktok';
@@ -45,42 +45,50 @@ export function buildAvatarInfo(url: string): AvatarInfo {
   };
 }
 
-export function parseSearchUser(data: Record<string, any>): SearchUserResult {
-  const u = data.user_info ?? data;
+export function parseSearchUser(data: Record<string, unknown>): SearchUserResult {
+  const u = (data.user_info as Record<string, unknown> | undefined) ?? data;
+  const getStr = (key: string, snakeKey: string) => String(u[key] ?? u[snakeKey] ?? '');
+  const getNum = (key: string, snakeKey: string) => Number(u[key] ?? u[snakeKey] ?? 0);
+  const getBool = (key: string, snakeKey: string) => Boolean(u[key] ?? u[snakeKey] ?? false);
+  const nestedUrl = (key: string, snakeKey: string) => {
+    const nested = u[snakeKey] as { url_list?: string[] } | undefined;
+    return String(u[key] ?? nested?.url_list?.[0] ?? '');
+  };
+
+  const commerce = u.commerceUserInfo as { commerceUser?: boolean; category?: string } | undefined;
+
   return {
     by: 'Traceryn',
-    id: String(u.uid ?? u.id ?? ''),
-    uniqueId: String(u.uniqueId ?? u.unique_id ?? ''),
-    nickname: String(u.nickname ?? ''),
-    signature: String(u.signature ?? ''),
-    verified: Boolean(u.verified ?? false),
-    secUid: String(u.secUid ?? ''),
+    id: getStr('uid', 'id'),
+    uniqueId: getStr('uniqueId', 'unique_id'),
+    nickname: getStr('nickname', 'nickname'),
+    signature: getStr('signature', 'signature'),
+    verified: getBool('verified', 'verified'),
+    secUid: getStr('secUid', 'sec_uid'),
     avatar: {
-      thumb: buildAvatarInfo(String(u.avatarThumb ?? u.avatar_thumb?.url_list?.[0] ?? '')),
-      medium: buildAvatarInfo(String(u.avatarMedium ?? u.avatar_medium?.url_list?.[0] ?? '')),
-      larger: buildAvatarInfo(String(u.avatarLarger ?? u.avatar_larger?.url_list?.[0] ?? '')),
+      thumb: buildAvatarInfo(nestedUrl('avatarThumb', 'avatar_thumb')),
+      medium: buildAvatarInfo(nestedUrl('avatarMedium', 'avatar_medium')),
+      larger: buildAvatarInfo(nestedUrl('avatarLarger', 'avatar_larger')),
     },
-    followerCount: Number(u.followerCount ?? u.follower_count ?? 0),
-    followingCount: Number(u.followingCount ?? u.following_count ?? 0),
-    heartCount: Number(u.heartCount ?? u.heart ?? 0),
-    videoCount: Number(u.videoCount ?? u.video_count ?? 0),
-    commerceUserInfo: u.commerceUserInfo
-      ? { commerceUser: Boolean(u.commerceUserInfo.commerceUser), category: u.commerceUserInfo.category }
+    followerCount: getNum('followerCount', 'follower_count'),
+    followingCount: getNum('followingCount', 'following_count'),
+    heartCount: getNum('heartCount', 'heart'),
+    videoCount: getNum('videoCount', 'video_count'),
+    commerceUserInfo: commerce?.commerceUser
+      ? { commerceUser: true, category: commerce.category }
       : undefined,
-    privateAccount: Boolean(u.privateAccount ?? u.private_account ?? false),
+    privateAccount: getBool('privateAccount', 'private_account'),
     raw: data,
   };
 }
 
 async function fetchCookies(proxy: string): Promise<string> {
   const jar = new CookieJar();
-  await ofetch<string>(USER_PAGE, {
+  await textFetch(USER_PAGE, {
     headers: HEADERS.desktop,
-    ...({ proxy } as any),
-    parseResponse: (t: string) => t,
-    onResponse(_ctx) {
-      const resp = _ctx.response;
-      if (resp?.headers) jar.setFromHeaders(resp.headers as unknown as Headers);
+    proxy,
+    onResponse({ response }) {
+      if (response?.headers) jar.setFromHeaders(response.headers);
     },
   });
   const blocked = new Set(['tt_chain_token', 'msToken']);
@@ -100,14 +108,19 @@ export async function searchUsers(
   if (session?.isReady) {
     try {
       const code = JSON.stringify({ tiktok: { client_params_x: { search_engine: { ies_mt_user_live_video_card_use_libra: 1, mt_search_general_user_live_card: 1 } }, search_server: {} } });
-      const res = await session.request<Record<string, any>>('/api/search/user/full/', {
+      const res = await session.request<Record<string, unknown>>('/api/search/user/full/', {
         keyword: query, cursor: String(cursor), count: String(count), from_page: 'search', web_search_code: code,
       });
-      const rawUsers: Array<Record<string, any>> = res.user_list ?? [];
+      const rawUsers = (res.user_list as Array<Record<string, unknown>>) ?? [];
       const users = rawUsers.map(parseSearchUser);
-      return { users, cursor: Number(res.cursor ?? cursor), hasMore: Boolean(res.has_more ?? false), raw: res };
+      return {
+        users,
+        cursor: Number(res.cursor ?? cursor),
+        hasMore: Boolean(res.has_more ?? false),
+        raw: res,
+      };
     } catch {
-      // if the session path fails, use plain HTTP instead
+      // fall through to plain HTTP
     }
   }
 
@@ -127,19 +140,19 @@ export async function searchUsers(
 
   let res: unknown;
   try {
-    res = await ofetch<unknown>(signedUrl, {
+    res = await jsonFetch<unknown>(signedUrl, {
       headers: {
         ...HEADERS.api,
         Referer: `https://www.tiktok.com/search/user?q=${encodeURIComponent(query)}`,
         Cookie: cookieStr,
       },
-      ...({ proxy } as any),
+      proxy,
     });
-  } catch (err: unknown) {
-    const ofetchErr = err as { status?: number };
+  } catch (err) {
+    const status = (err as { status?: number })?.status;
     throw new TikTokFetchError(
       `Search API failed: ${(err as Error).message}`,
-      ofetchErr.status,
+      status,
     );
   }
 
@@ -150,16 +163,16 @@ export async function searchUsers(
       0,
     );
   }
-  const resObj = res as Record<string, any>;
+  const resObj = res as Record<string, unknown>;
 
   if (resObj.status_code && resObj.status_code !== 0) {
     throw new TikTokFetchError(
       `Search API returned error: ${resObj.status_msg ?? resObj.status_code}`,
-      resObj.status_code,
+      Number(resObj.status_code),
     );
   }
 
-  const rawUsers: Array<Record<string, any>> = resObj.user_list ?? [];
+  const rawUsers = (resObj.user_list as Array<Record<string, unknown>>) ?? [];
   const users = rawUsers.map(parseSearchUser);
 
   return {

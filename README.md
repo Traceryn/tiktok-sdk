@@ -62,7 +62,7 @@ npm install playwright
 yarn add playwright
 ```
 
-> **Note:** Only needed for `--session` (browser-backed) requests. No separate Chromium install required.
+> **Note:** Only needed for `--session` (browser-backed) requests. After installing Playwright, you must also download a browser binary with `npx playwright install chromium`. The `playwright` package is a thin wrapper — it does not ship a browser by default.
 
 ## Then import your code using:
 

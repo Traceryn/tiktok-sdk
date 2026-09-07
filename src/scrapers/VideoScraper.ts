@@ -1,10 +1,9 @@
-import { ofetch } from 'ofetch';
 import type { Session, ScrapeResult, VideoDetailResponse } from '../types.js';
-import { CookieJar } from '../utils/CookieJar.js';
 import { HEADERS } from '../utils/constants.js';
 import { normalizePhotoUrl, extractVideoId } from './UrlExtractor.js';
 import { ParserEngine } from './ParserEngine.js';
-import { TikTokFetchError, TikTokWafError } from '../utils/errors.js';
+import { TikTokWafError } from '../utils/errors.js';
+import { textFetch } from '../utils/HttpClient.js';
 
 let parserEngine: ParserEngine | null = null;
 function getParser(): ParserEngine {
@@ -13,26 +12,19 @@ function getParser(): ParserEngine {
 }
 
 async function scrapeVideoHTML(url: string, proxy: string): Promise<ScrapeResult> {
-  const jar = new CookieJar();
   const fetchUrl = normalizePhotoUrl(url);
 
-  const html = await ofetch<string>(fetchUrl, {
+  const html = await textFetch(fetchUrl, {
     headers: { ...HEADERS.desktop, Referer: url },
-    parseResponse: (txt: string) => txt,
-    ...({ proxy } as any),
-    onResponse(_ctx) {
-      const resp = _ctx.response;
-      if (resp?.headers) jar.setFromHeaders(resp.headers as unknown as Headers);
-    },
+    proxy,
   });
 
-  // Detect WAF: empty or tiny HTML means blocked
   if (!html || html.length < 500) {
     throw new TikTokWafError(`Video HTML too short (${html?.length ?? 0} bytes)`, proxy);
   }
 
   const { itemStruct } = getParser().parse(html);
-  return { html, itemStruct, cookies: jar.all };
+  return { html, itemStruct, cookies: {} };
 }
 
 export async function scrapeVideo(
@@ -40,7 +32,6 @@ export async function scrapeVideo(
   session: Session | undefined,
   proxy: string,
 ): Promise<ScrapeResult> {
-  // Strategy 1: Session API path
   if (session?.isReady) {
     try {
       const videoId = extractVideoId(url);
@@ -54,7 +45,6 @@ export async function scrapeVideo(
     }
   }
 
-  // 2) render the page if the session path misses
   if (session?.render) {
     try {
       const renderedHtml = await session.render(url);
@@ -67,6 +57,5 @@ export async function scrapeVideo(
     }
   }
 
-  // 3) raw HTML scrape as the last shot
   return scrapeVideoHTML(url, proxy);
 }
