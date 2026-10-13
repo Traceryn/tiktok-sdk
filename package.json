@@ -14,10 +14,14 @@
     "url": "https://github.com/traceryn/tiktok-sdk/issues"
   },
   "keywords": [
-    "tiktok",
-    "api",
-    "unofficial",
-    "typescript"
+  nodejs,
+  tiktok,
+  tiktok-api,
+  tiktok-downloader,
+  tiktok-scraper,
+  traceryn,
+  typescript,
+  unofficial-api
   ],
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
